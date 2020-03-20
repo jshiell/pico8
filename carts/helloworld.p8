@@ -22,7 +22,9 @@ function _init()
     ship = {
         x = 60,
         y = 100,
-        sprite = 1
+        sprite = 1,
+        vx = 2,
+        vy = 2
     }
     bullets = {}
     stars = {}
@@ -31,15 +33,15 @@ function _init()
     end
 end
 
-function handle_movement()
+function handle_player_movement()
   if btn(0) and ship.x > 0 then
-    ship.x = ship.x - 1
+    ship.x = ship.x - ship.vx
   elseif btn(1) and ship.x < 120 then
-    ship.x = ship.x + 1
+    ship.x = ship.x + ship.vx
   elseif btn(2) and ship.y > 0 then
-    ship.y = ship.y - 1
+    ship.y = ship.y - ship.vy
   elseif btn(3) and ship.y < 120 then
-    ship.y = ship.y + 1
+    ship.y = ship.y + ship.vy
   end
 end
 
@@ -82,7 +84,7 @@ end
 
 function _update()
     ticks = ticks + 1
-    handle_movement()
+    handle_player_movement()
     handle_player_fire()
     update_animations()
 end
