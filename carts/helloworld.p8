@@ -41,6 +41,8 @@ function _init()
     for i= 1, 64 do
       add(stars, create_star(flr(rnd(128))))
     end
+
+    start_new_game()
 end
 
 function attack_pattern_alpha(actor) 
@@ -57,7 +59,7 @@ function attack_pattern_alpha(actor)
   end
 end
 
-function handle_enemies() 
+function update_enemies() 
   for enemy in all(enemies) do
     if enemy.delete_me then
       del(enemies, enemy)
@@ -118,6 +120,62 @@ function handle_enemies()
   end)
 end
 
+function collision(first_actor, second_actor)
+  if (first_actor.x + first_actor.boundaries.x_min) > (second_actor.x + second_actor.boundaries.x_max)
+      or (first_actor.y + first_actor.boundaries.y_min) > (second_actor.y + second_actor.boundaries.y_max)
+      or (second_actor.x + second_actor.boundaries.x_min) > (first_actor.x + first_actor.boundaries.x_max)
+      or (second_actor.y + second_actor.boundaries.y_min) > (first_actor.y + first_actor.boundaries.y_max) then
+    return false
+  end
+  return true
+end
+
+function create_explosion(actor, initial_sprite)
+  return {
+    x = actor.x,
+    y = actor.y,
+    sprite = initial_sprite
+  }
+end
+
+function update_game_objects()
+  for explosion in all(explosions) do
+    if ticks % 2 == 0 then
+      explosion.sprite = explosion.sprite + 1
+      if explosion.sprite < 10 then
+        explosion.sprite = 10
+      elseif explosion.sprite > 13 then
+        del(explosions, explosion)
+      end
+    end
+  end
+
+  for star in all(stars) do
+    star.y = star.y + star.vy
+    if star.y > 128 then
+      del(stars, star)
+      add(stars, create_star(0))
+    end
+  end
+
+  for bullet in all(bullets) do
+    bullet.x = bullet.x + bullet.vx
+    bullet.y = bullet.y + bullet.vy
+    if bullet.x < -8 or bullet.x > 128 or bullet.y < -8 or bullet.y > 128 then
+      del(bullets, bullet)
+    end
+
+    for enemy in all(enemies) do
+      if collision(enemy, bullet) then
+        del(bullets, bullet)
+        del(enemies, enemy)
+        add(explosions, create_explosion(enemy, 9))
+        score = score + 1
+      end
+    end
+  end
+end
+
 function handle_player_movement()
   if btn(0) and ship.x > 0 then
     ship.x = ship.x - ship.vx
@@ -155,114 +213,98 @@ function handle_player_fire()
   end
 end
 
-function collision(first_actor, second_actor)
-  if (first_actor.x + first_actor.boundaries.x_min) > (second_actor.x + second_actor.boundaries.x_max)
-      or (first_actor.y + first_actor.boundaries.y_min) > (second_actor.y + second_actor.boundaries.y_max)
-      or (second_actor.x + second_actor.boundaries.x_min) > (first_actor.x + first_actor.boundaries.x_max)
-      or (second_actor.y + second_actor.boundaries.y_min) > (first_actor.y + first_actor.boundaries.y_max) then
-    return false
+function update_player()
+  handle_player_movement()
+  handle_player_fire()
+
+  if ticks % 6 < 3 then
+    ship.engine_sprite = 4
+  else
+    ship.engine_sprite = 5
   end
-  return true
+
+  for enemy in all(enemies) do
+    if collision(ship, enemy) then
+      del(enemies, enemy)
+      add(explosions, create_explosion(enemy, 9))
+      add(explosions, create_explosion(ship, 8))
+      
+      game_over()
+    end
+  end
 end
 
-function create_explosion(actor, initial_sprite)
-  return {
-    x = actor.x,
-    y = actor.y,
-    sprite = initial_sprite
-  }
+function _update_game_over()
+    ticks = ticks + 1
+    update_enemies()
+    update_game_objects()
 end
 
-function update_state()
-  for explosion in all(explosions) do
-    if ticks % 2 == 0 then
-      explosion.sprite = explosion.sprite + 1
-      if explosion.sprite < 10 then
-        explosion.sprite = 10
-      elseif explosion.sprite > 13 then
-        del(explosions, explosion)
-      end
-    end
-  end
+function _update_game_active()
+    ticks = ticks + 1
+    update_enemies()
+    update_game_objects()
+    update_player()
+end
 
-  if not ship.destroyed then
-    if ticks % 6 < 3 then
-      ship.engine_sprite = 4
-    else
-      ship.engine_sprite = 5
-    end
-
-    for enemy in all(enemies) do
-      if collision(ship, enemy) then
-        del(enemies, enemy)
-        add(explosions, create_explosion(enemy, 9))
-        add(explosions, create_explosion(ship, 8))
-        ship.destroyed = true
-      end
-    end
-  end
-
+function draw_stars()
   for star in all(stars) do
-    star.y = star.y + star.vy
-    if star.y > 128 then
-      del(stars, star)
-      add(stars, create_star(0))
-    end
+    pset(star.x, star.y, star.colour)
+  end
+end
+
+function draw_ui()
+  print("score " .. score, 1, 1, 10)
+end
+
+function draw_game_objects()
+  for explosion in all(explosions) do
+    spr(explosion.sprite, explosion.x, explosion.y)
+  end
+
+  for enemy in all(enemies) do
+    spr(enemy.sprite, enemy.x, enemy.y)
   end
 
   for bullet in all(bullets) do
-    bullet.x = bullet.x + bullet.vx
-    bullet.y = bullet.y + bullet.vy
-    if bullet.x < -8 or bullet.x > 128 or bullet.y < -8 or bullet.y > 128 then
-      del(bullets, bullet)
-    end
-
-    for enemy in all(enemies) do
-      if collision(enemy, bullet) then
-        del(bullets, bullet)
-        del(enemies, enemy)
-        add(explosions, create_explosion(enemy, 9))
-        score = score + 1
-      end
-    end
+    spr(bullet.sprite, bullet.x, bullet.y)
   end
 end
 
-function _update()
-    ticks = ticks + 1
-    handle_enemies()
-    handle_player_movement()
-    handle_player_fire()
-    update_state()
+function draw_player_objects()
+  spr(ship.sprite, ship.x, ship.y)
+  spr(ship.engine_sprite, ship.x, ship.y)
 end
 
-function _draw()
-    cls(black)
-    for star in all(stars) do
-      pset(star.x, star.y, star.colour)
-    end
+function _draw_game_over()  
+  cls(black)
 
-    print("score " .. score, 1, 1, 10)
+  draw_stars()
+  draw_game_objects()
+  draw_ui()
 
-    if ship.destroyed then
-      print("game over", 52, 64, 12)
-    else
-      spr(ship.sprite, ship.x, ship.y)
-      spr(ship.engine_sprite, ship.x, ship.y)
-    end
-
-    for explosion in all(explosions) do
-      spr(explosion.sprite, explosion.x, explosion.y)
-    end
-
-    for enemy in all(enemies) do
-      spr(enemy.sprite, enemy.x, enemy.y)
-    end
-
-    for bullet in all(bullets) do
-      spr(bullet.sprite, bullet.x, bullet.y)
-    end
+  print("game over", 52, 64, 12)
 end
+
+function _draw_game_active()
+  cls(black)
+
+  draw_stars()
+  draw_player_objects()
+  draw_game_objects()
+  draw_ui()
+end
+
+function game_over()
+  _draw = _draw_game_over
+  _update = _update_game_over
+end
+
+function start_new_game()
+  _draw = _draw_game_active
+  _update = _update_game_active
+end
+
 
 __gfx__
 00000000000880000008800000088000000000000000000000000000000000000000000000088000000880000089980000899800000000000000000000000000
