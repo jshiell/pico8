@@ -36,53 +36,61 @@ function _init()
 end
 
 function attack_pattern_alpha(actor) 
-  actor.x = actor.x + actor.vx
-  actor.y = actor.y + actor.vy
+  actor.r = actor.r or 15
+  actor.time = (actor.time or 0) + 1
+  actor.x = (actor.r * sin(actor.time / 64)) + actor.ax + (actor.vx * actor.time / 2)
+  actor.y = (actor.r * cos(actor.time / 64)) + actor.ay + (actor.vy * actor.time / 2)
+
+  if (actor.x < -32 and actor.vx < 0) 
+      or (actor.x > 160 and actor.vx > 0) 
+      or (actor.y < -32 and actor.vy < 0)
+      or (actor.y > 160 and actor.vy > 0) then
+    actor.delete_me = true
+  end
 end
 
 function handle_enemies() 
   for enemy in all(enemies) do
-    if (enemy.x < -8 and enemy.vx < 0) 
-        or (enemy.x > 120 and enemy.vx > 0) 
-        or (enemy.y < -8 and enemy.vy < 0)
-        or (enemy.y > 120 and enemy.vy > 0) then
+    if enemy.delete_me then
       del(enemies, enemy)
     end
   end
 
-  if #enemies == 0 then
+  if #enemies <= 0 then
     local spawn_location = flr(rnd(4))
+    local spawn_axis = flr(rnd(100)) + 16
     local offsets, x, y, vx, vy
     if spawn_location == 1 then
       x = -8
-      y = flr(rnd(128))
+      y = spawn_axis
       vx = 1
       vy = 0
       offsets = function(index)
         return 16 - (16 * index), 0
       end
     elseif spawn_location == 2 then
-      x = flr(rnd(128))
+      x = spawn_axis
       y = -8
       vx = 0
-      vy = -1
+      vy = 1
       offsets = function(index)
         return 0, 16 - (16 * index)
       end
     else 
       x = 128
-      y = flr(rnd(128))
+      y = spawn_axis
       vx = -1
       vy = 0
       offsets = function(index)
         return (16 * index ) - 16, 0
       end
     end
-    for i = 1,4 do
+
+    for i = 1, 4 do
       local x_offset, y_offset = offsets(i)
       add(enemies, {
-        x = x + x_offset,
-        y = y + y_offset,
+        ax = x + x_offset,
+        ay = y + y_offset,
         vx = vx,
         vy = vy,
         sprite = 7,
