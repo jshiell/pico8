@@ -173,7 +173,7 @@ function update_game_objects()
         del(bullets, bullet)
         del(enemies, enemy)
         add(explosions, create_explosion(enemy, 9))
-        score = score + 1
+        score = score + 10
       end
     end
   end
@@ -248,6 +248,12 @@ function handle_game_over()
   end
 end
 
+function update_score()
+  if ticks % 30 == 0 then
+    score = score + 1
+  end
+end
+
 function _update_game_over()
     ticks = ticks + 1
     update_enemies()
@@ -257,6 +263,7 @@ end
 
 function _update_game_active()
     ticks = ticks + 1
+    update_score()
     update_enemies()
     update_game_objects()
     update_player()
