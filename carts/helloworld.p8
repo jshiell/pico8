@@ -19,6 +19,7 @@ end
 
 function _init()
     ticks = 0
+    score = 0
     ship = {
         x = 60,
         y = 100,
@@ -221,6 +222,7 @@ function update_state()
         del(bullets, bullet)
         del(enemies, enemy)
         add(explosions, create_explosion(enemy, 9))
+        score = score + 1
       end
     end
   end
@@ -240,8 +242,10 @@ function _draw()
       pset(star.x, star.y, star.colour)
     end
 
+    print("score " .. score, 1, 1, 10)
+
     if ship.destroyed then
-      print("game over", 54, 64, 4)
+      print("game over", 52, 64, 12)
     else
       spr(ship.sprite, ship.x, ship.y)
       spr(ship.engine_sprite, ship.x, ship.y)
