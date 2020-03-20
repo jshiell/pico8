@@ -61,6 +61,26 @@ function attack_pattern_alpha(actor)
   end
 end
 
+function attack_pattern_beta(actor) 
+  actor.r = actor.r or 15
+  actor.time = (actor.time or 0) + 1
+
+  if actor.vx != 0 then
+    actor.x = actor.ax + (actor.vx * actor.time / 2)
+    actor.y = (actor.r * cos((actor.time + (actor.index * 2)) / 64)) + actor.ay + (actor.vy * actor.time / 2)
+  elseif actor.vy != 0 then
+    actor.x = (actor.r * sin((actor.time + (actor.index * 2)) / 64)) + actor.ax + (actor.vx * actor.time / 2)
+    actor.y = actor.ay + (actor.vy * actor.time / 2)
+  end
+
+  if (actor.x < -32 and actor.vx < 0) 
+      or (actor.x > 160 and actor.vx > 0) 
+      or (actor.y < -32 and actor.vy < 0)
+      or (actor.y > 160 and actor.vy > 0) then
+    actor.delete_me = true
+  end
+end
+
 function update_enemies() 
   for enemy in all(enemies) do
     if enemy.delete_me then
@@ -72,12 +92,20 @@ function update_enemies()
     last_spawn = ticks
     local spawn_location = flr(rnd(4))
     local spawn_axis = flr(rnd(100)) + 16
-    local radius = flr(rnd(10)) + 15
-    local offsets, x, y, vx, vy
+    local radius = flr(rnd(10)) + 10
+    local speed = flr(rnd(3)) + 1
+    local offsets, x, y, vx, vy, attack_pattern
+
+    if flr(rnd(2)) == 1 then
+      attack_pattern = attack_pattern_beta
+    else
+      attack_pattern = attack_pattern_alpha
+    end
+
     if spawn_location == 1 then
       x = -8
       y = spawn_axis
-      vx = flr(rnd(4)) + 1
+      vx = speed
       vy = 0
       offsets = function(index)
         return 16 - (16 * index), 0
@@ -86,14 +114,14 @@ function update_enemies()
       x = spawn_axis
       y = -8
       vx = 0
-      vy = flr(rnd(4)) + 1
+      vy = speed
       offsets = function(index)
         return 0, 16 - (16 * index)
       end
     else 
       x = 128
       y = spawn_axis
-      vx = 0 - (flr(rnd(4)) + 1)
+      vx = -speed
       vy = 0
       offsets = function(index)
         return (16 * index ) - 16, 0
@@ -108,6 +136,7 @@ function update_enemies()
         vx = vx,
         vy = vy,
         r = radius,
+        index = i,
         sprite = 7,
         boundaries = {
           x_min = 1,
@@ -115,7 +144,7 @@ function update_enemies()
           y_min = 2,
           y_max = 6
         },
-        attack_pattern = attack_pattern_alpha
+        attack_pattern = attack_pattern
       })
     end
   end
