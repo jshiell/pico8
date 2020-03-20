@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+main() {
+    local PICO8
+    if [[ -x "/Applications/PICO-8.app/Contents/MacOS/pico8" ]]; then
+        PICO8="/Applications/PICO-8.app/Contents/MacOS/pico8"
+    elif [[ -x "$(which pico8)" ]]; then
+        PICO8="$(which pico8)"
+    else
+        echo "Cannot find pico8; exiting..."
+        exit 1
+    fi
+
+    local BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    "$PICO8" -home "$BASE_DIR" -windowed 1
+}
+
+main
