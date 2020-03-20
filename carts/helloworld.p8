@@ -20,6 +20,7 @@ end
 function _init()
     ticks = 0
     game_over_at = 0
+    last_spawn = 0
     score = 0
     ship = {
         x = 60,
@@ -67,7 +68,8 @@ function update_enemies()
     end
   end
 
-  if #enemies <= 0 then
+  if #enemies < 12 and (#enemies <= 2 or (last_spawn + 90) < ticks) then
+    last_spawn = ticks
     local spawn_location = flr(rnd(4))
     local spawn_axis = flr(rnd(100)) + 16
     local offsets, x, y, vx, vy
@@ -318,8 +320,15 @@ end
 
 function start_new_game()
   score = 0
+  last_spawn = ticks
+  game_over_at = 0
+
   ship.x = 60
   ship.y = 100
+
+  for enemy in all(enemies) do
+    del(enemies, enemy)
+  end
 
   _draw = _draw_game_active
   _update = _update_game_active
