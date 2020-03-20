@@ -72,11 +72,12 @@ function update_enemies()
     last_spawn = ticks
     local spawn_location = flr(rnd(4))
     local spawn_axis = flr(rnd(100)) + 16
+    local radius = flr(rnd(10)) + 15
     local offsets, x, y, vx, vy
     if spawn_location == 1 then
       x = -8
       y = spawn_axis
-      vx = 1
+      vx = flr(rnd(4)) + 1
       vy = 0
       offsets = function(index)
         return 16 - (16 * index), 0
@@ -85,27 +86,28 @@ function update_enemies()
       x = spawn_axis
       y = -8
       vx = 0
-      vy = 1
+      vy = flr(rnd(4)) + 1
       offsets = function(index)
         return 0, 16 - (16 * index)
       end
     else 
       x = 128
       y = spawn_axis
-      vx = -1
+      vx = 0 - (flr(rnd(4)) + 1)
       vy = 0
       offsets = function(index)
         return (16 * index ) - 16, 0
       end
     end
 
-    for i = 1, 4 do
+    for i = 1, 2 + flr(rnd(3)) do
       local x_offset, y_offset = offsets(i)
       add(enemies, {
         ax = x + x_offset,
         ay = y + y_offset,
         vx = vx,
         vy = vy,
+        r = radius,
         sprite = 7,
         boundaries = {
           x_min = 1,
