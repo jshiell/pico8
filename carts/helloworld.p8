@@ -25,7 +25,13 @@ function _init()
         sprite = 1,
         engine_sprite = 4,
         vx = 2,
-        vy = 2
+        vy = 2,
+        boundaries = {
+          x_min = 1,
+          x_max = 8,
+          y_min = 1,
+          y_max = 6
+        }
     }
     enemies = {}
     bullets = {}
@@ -94,6 +100,12 @@ function handle_enemies()
         vx = vx,
         vy = vy,
         sprite = 7,
+        boundaries = {
+          x_min = 1,
+          x_max = 8,
+          y_min = 2,
+          y_max = 6
+        },
         attack_pattern = attack_pattern_alpha
       })
     end
@@ -131,6 +143,10 @@ function handle_player_fire()
       vy = 0 - 4,
       sprite = 6,
       boundaries = {
+        x_min = 3,
+        x_max = 4,
+        y_min = 2,
+        y_max = 3
       }
     }
     add(bullets, bullet)
@@ -167,6 +183,13 @@ function update_state()
     bullet.y = bullet.y + bullet.vy
     if bullet.x < -8 or bullet.x > 128 or bullet.y < -8 or bullet.y > 128 then
       del(bullets, bullet)
+    end
+
+    for enemy in all(enemies) do
+      if collision(enemy, bullet) then
+        del(bullets, bullet)
+        del(enemies, enemy)
+      end
     end
   end
 end
