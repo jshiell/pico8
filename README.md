@@ -1,6 +1,6 @@
 # PICO-8 Experimentation
 
-Some fun with [PICO-8], a fantasy 8-bit console.
+Some fun with [PICO-8](https://www.lexaloffle.com/pico-8.php), a fantasy 8-bit console.
 
 ## Running
 
