@@ -196,7 +196,7 @@ function handle_player_movement()
 end
 
 function handle_player_fire()
-  if btn(4) and ticks % 2 == 0 and #bullets < 30 then
+  if (btn(4) or btn(5)) and ticks % 2 == 0 and #bullets < 30 then
     local bullet = {
       x = ship.x,
       y = ship.y - 2,
