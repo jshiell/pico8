@@ -19,6 +19,7 @@ end
 
 function _init()
     ticks = 0
+    game_over_at = 0
     score = 0
     ship = {
         x = 60,
@@ -234,10 +235,22 @@ function update_player()
   end
 end
 
+function handle_game_over()
+  if game_over_at + 30 < ticks then
+    for i = 4, 5 do
+      if btnp(i) then
+        start_new_game()
+        return
+      end
+    end
+  end
+end
+
 function _update_game_over()
     ticks = ticks + 1
     update_enemies()
     update_game_objects()
+    handle_game_over()
 end
 
 function _update_game_active()
@@ -283,7 +296,9 @@ function _draw_game_over()
   draw_game_objects()
   draw_ui()
 
-  print("game over", 52, 64, 12)
+  print("game over", 52, 52, 12)
+
+  print("press fire to restart", 28, 74, 12)
 end
 
 function _draw_game_active()
@@ -296,11 +311,16 @@ function _draw_game_active()
 end
 
 function game_over()
+  game_over_at = ticks
   _draw = _draw_game_over
   _update = _update_game_over
 end
 
 function start_new_game()
+  score = 0
+  ship.x = 60
+  ship.y = 100
+
   _draw = _draw_game_active
   _update = _update_game_active
 end
