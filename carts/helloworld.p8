@@ -10,6 +10,13 @@ function _init()
         sprite = 1
     }
     bullets = {}
+    stars = {}
+    for i= 1, 30 do
+      add(stars, {
+        x = rnd(128),
+        y = rnd(128)
+      })
+    end
 end
 
 function handle_movement()
@@ -62,6 +69,9 @@ end
 
 function _draw()
     cls(black)
+    for star in all(stars) do
+      pset(star.x, star.y, 7)
+    end
     spr(ship.sprite, ship.x, ship.y)
     for bullet in all(bullets) do
       spr(bullet.sprite, bullet.x, bullet.y)
