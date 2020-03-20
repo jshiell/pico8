@@ -129,13 +129,25 @@ function handle_player_fire()
       y = ship.y - 2,
       vx = 0,
       vy = 0 - 4,
-      sprite = 6
+      sprite = 6,
+      boundaries = {
+      }
     }
     add(bullets, bullet)
   end
 end
 
-function update_animations()
+function collision(first_actor, second_actor)
+  if (first_actor.x + first_actor.boundaries.x_min) > (second_actor.x + second_actor.boundaries.x_max)
+      or (first_actor.y + first_actor.boundaries.y_min) > (second_actor.y + second_actor.boundaries.y_max)
+      or (second_actor.x + second_actor.boundaries.x_min) > (first_actor.x + first_actor.boundaries.x_max)
+      or (second_actor.y + second_actor.boundaries.y_min) > (first_actor.y + first_actor.boundaries.y_max) then
+    return false
+  end
+  return true
+end
+
+function update_state()
   if ticks % 6 < 3 then
     ship.engine_sprite = 4
   else
@@ -164,7 +176,7 @@ function _update()
     handle_enemies()
     handle_player_movement()
     handle_player_fire()
-    update_animations()
+    update_state()
 end
 
 function _draw()
