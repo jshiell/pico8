@@ -17,6 +17,12 @@ function filter_p8_line(line)
     return filtered_line
 end
 
+function configure_p8_globals()
+    cos = math.cos
+    sin = math.sin
+    tan = math.tan
+end
+
 function find_candidate_paths(module_ref)
     local module_lua_path = os.getenv('P8_CART_PATH') or "carts/?.p8"
 
@@ -65,6 +71,7 @@ end
 
 function M.import_globals(module_ref)
     local lua_module = create_lua_module(find_module_file(module_ref))
+    configure_p8_globals()
     require(lua_module)
 end
 

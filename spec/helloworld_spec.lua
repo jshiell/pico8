@@ -23,4 +23,19 @@ describe("helloworld", function()
         }, result)
     end)
 
+    describe("attack pattern alpha", function()
+        it("should mark actors for deletion when they leave the bounds of the screen + margin", function()
+            local actor_to_be_deleted = {
+                ax = -40,
+                ay = 12,
+                vx = -2,
+                vy = 0
+            }
+
+            attack_pattern_alpha(actor_to_be_deleted)
+
+            assert.are.equals(true, actor_to_be_deleted.delete_me)
+        end)
+    end)
+
 end)
