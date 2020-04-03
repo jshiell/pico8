@@ -14,3 +14,10 @@ Or, manually:
 ```bash
 pico8 -home .
 ```
+
+## Testing
+
+There's the genesis of a test harness for [busted]() in `specs`.
+
+    luarocks install busted
+    P8_CART_PATH='carts/?.p8' busted -m 'spec/?.lua;carts/?.lua'
