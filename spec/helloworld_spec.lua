@@ -4,6 +4,10 @@ describe("helloworld", function()
     
     p8_test.import_globals("helloworld")
 
+    teardown(function()
+        p8_test.cleanup()
+    end)
+
     it("should create an explosion", function()
         local test_actor = {
             x = 10,

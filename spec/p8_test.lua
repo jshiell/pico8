@@ -1,5 +1,7 @@
 local M = {}
 
+local created_files = {}
+
 function file_exists(file_path)
     local file = io.open(file_path, "rb")
     if file then
@@ -56,6 +58,7 @@ function create_lua_module(module_file_to_load)
         end
     end
     out:close()
+    table.insert(created_files, output_filename .. ".lua")
 
     return output_filename
 end
@@ -65,5 +68,12 @@ function M.import_globals(module_ref)
     require(lua_module)
 end
 
+function M.cleanup()
+    for _, filename in ipairs(created_files) do
+        if file_exists(filename) then
+            os.remove(filename)
+        end
+    end
+end
 
 return M
