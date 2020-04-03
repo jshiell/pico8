@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+main() {
+    local BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+    cd "$BASE_DIR"
+    P8_CART_PATH="carts/?.p8" busted -m "spec/?.lua;carts/?.lua"
+}
+
+main
